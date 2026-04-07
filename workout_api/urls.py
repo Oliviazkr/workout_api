@@ -19,4 +19,5 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/workouts/', include('workouts.urls')),  # 运动API根地址
 ]
