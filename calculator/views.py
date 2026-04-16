@@ -12,29 +12,30 @@ from .models import FoodItem, CalculationHistory
 from .forms import RegisterForm, LoginForm, FoodItemForm, CSVUploadForm
 
 
-# ============ 首页 ============
+# ============ Home ============
 def home(request):
-    """首页 - 营养计算器"""
+    """Home - Nutrition Calculator"""
     foods = FoodItem.objects.all()
 
-    # 获取分类用于筛选
+    # Get categories for filtering - ensure distinct
     categories = FoodItem.objects.values_list('category', flat=True).distinct()
+    categories = sorted([c for c in categories if c])
 
     context = {
         'foods': foods,
-        'categories': sorted([c for c in categories if c]),
+        'categories': categories,
     }
     return render(request, 'calculator/home.html', context)
 
 
-# ============ 认证视图 ============
+# ============ Authentication Views ============
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, f'欢迎 {user.username}！注册成功！')
+            messages.success(request, f'Welcome {user.username}! Registration successful!')
             return redirect('home')
     else:
         form = RegisterForm()
@@ -50,7 +51,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user:
                 login(request, user)
-                messages.success(request, f'欢迎回来，{username}！')
+                messages.success(request, f'Welcome back, {username}!')
                 return redirect('home')
     else:
         form = LoginForm()
@@ -59,14 +60,14 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    messages.info(request, '您已成功退出登录。')
+    messages.info(request, 'You have been successfully logged out.')
     return redirect('home')
 
 
-# ============ 食物管理 ============
+# ============ Food Management ============
 @login_required
 def food_list(request):
-    """食物列表页面"""
+    """Food list page"""
     search = request.GET.get('search', '')
     category = request.GET.get('category', '')
 
@@ -76,11 +77,13 @@ def food_list(request):
     if category:
         foods = foods.filter(category=category)
 
+    # Get all distinct categories and sort
     categories = FoodItem.objects.values_list('category', flat=True).distinct()
+    categories = sorted([c for c in categories if c])  # Filter out empty values and sort
 
     context = {
         'foods': foods,
-        'categories': sorted([c for c in categories if c]),
+        'categories': categories,
         'search': search,
         'selected_category': category,
     }
@@ -89,46 +92,46 @@ def food_list(request):
 
 @login_required
 def food_add(request):
-    """添加食物"""
+    """Add food"""
     if request.method == 'POST':
         form = FoodItemForm(request.POST)
         if form.is_valid():
             food = form.save()
-            messages.success(request, f'"{food.name}" 添加成功！')
+            messages.success(request, f'"{food.name}" added successfully!')
             return redirect('food_list')
     else:
         form = FoodItemForm()
-    return render(request, 'calculator/food_form.html', {'form': form, 'title': '添加食物'})
+    return render(request, 'calculator/food_form.html', {'form': form, 'title': 'Add Food'})
 
 
 @login_required
 def food_edit(request, pk):
-    """编辑食物"""
+    """Edit food"""
     food = get_object_or_404(FoodItem, pk=pk)
     if request.method == 'POST':
         form = FoodItemForm(request.POST, instance=food)
         if form.is_valid():
             form.save()
-            messages.success(request, f'"{food.name}" 更新成功！')
+            messages.success(request, f'"{food.name}" updated successfully!')
             return redirect('food_list')
     else:
         form = FoodItemForm(instance=food)
-    return render(request, 'calculator/food_form.html', {'form': form, 'title': '编辑食物', 'food': food})
+    return render(request, 'calculator/food_form.html', {'form': form, 'title': 'Edit Food', 'food': food})
 
 
 @login_required
 def food_delete(request, pk):
-    """删除食物"""
+    """Delete food"""
     food = get_object_or_404(FoodItem, pk=pk)
     name = food.name
     food.delete()
-    messages.success(request, f'"{name}" 已删除。')
+    messages.success(request, f'"{name}" has been deleted.')
     return redirect('food_list')
 
 
 @login_required
 def import_csv(request):
-    """从CSV导入食物数据"""
+    """Import food data from CSV"""
     if request.method == 'POST':
         form = CSVUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -186,21 +189,21 @@ def import_csv(request):
                     )
                     created += 1
 
-                messages.success(request, f'导入完成！新增 {created} 条，跳过 {skipped} 条。')
+                messages.success(request, f'Import completed! Added {created} items, skipped {skipped} items.')
                 return redirect('food_list')
 
             except Exception as e:
-                messages.error(request, f'导入失败：{str(e)}')
+                messages.error(request, f'Import failed: {str(e)}')
     else:
         form = CSVUploadForm()
 
     return render(request, 'calculator/import_csv.html', {'form': form})
 
 
-# ============ 营养计算 ============
+# ============ Nutrition Calculation ============
 @csrf_exempt
 def calculate_nutrition(request):
-    """计算营养（AJAX请求）"""
+    """Calculate nutrition (AJAX request)"""
     if request.method == 'POST':
         data = json.loads(request.body)
         items = data.get('items', [])
@@ -261,7 +264,7 @@ def calculate_nutrition(request):
             'details': details,
         }
 
-        # 保存到历史记录（如果用户已登录）
+        # Save to history (if user is logged in)
         if request.user.is_authenticated and details:
             CalculationHistory.objects.create(
                 user=request.user,
@@ -281,14 +284,14 @@ def calculate_nutrition(request):
 
 @login_required
 def history_list(request):
-    """计算历史"""
+    """Calculation history"""
     history = CalculationHistory.objects.filter(user=request.user)
     return render(request, 'calculator/history.html', {'history': history})
 
 
 @login_required
 def history_detail(request, pk):
-    """历史详情"""
+    """History detail"""
     record = get_object_or_404(CalculationHistory, pk=pk, user=request.user)
     items = json.loads(record.items)
     return render(request, 'calculator/history_detail.html', {'record': record, 'items': items})
@@ -296,11 +299,10 @@ def history_detail(request, pk):
 
 # ============ API ============
 def search_foods(request):
-    """搜索食物（AJAX）"""
+    """Search foods (AJAX)"""
     query = request.GET.get('q', '')
     if len(query) >= 1:
         foods = FoodItem.objects.filter(name__icontains=query)[:20]
-        data = [{'id': f.id, 'name': f.name, 'calories': f.calories, 'category': f.get_category_display()} for f in
-                foods]
+        data = [{'id': f.id, 'name': f.name, 'calories': f.calories, 'category': f.get_category_display()} for f in foods]
         return JsonResponse(data, safe=False)
     return JsonResponse([], safe=False)
