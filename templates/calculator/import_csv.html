@@ -1,38 +1,38 @@
 {% extends 'base.html' %}
 
-{% block title %}导入CSV数据{% endblock %}
+{% block title %}Import CSV Data{% endblock %}
 
 {% block content %}
 <div style="max-width: 600px; margin: 2rem auto;">
     <div class="card">
-        <h2 style="margin-bottom: 1rem;">📂 从CSV导入食物数据</h2>
+        <h2 style="margin-bottom: 1rem;">📂 Import Food Data from CSV</h2>
 
         <div class="alert alert-info" style="margin-bottom: 1.5rem;">
-            <strong>📋 CSV文件格式要求：</strong><br>
-            文件应包含以下列（列名需匹配）：<br>
+            <strong>📋 CSV File Format Requirements:</strong><br>
+            The file should contain the following columns (column names must match):<br>
             <code>name, category, calories, protein, carbs, fat, fiber, sugar</code><br><br>
-            或者从 Kaggle 下载的食物数据集，系统会自动识别常见列名。
+            For food datasets downloaded from Kaggle, the system will automatically recognize common column names.
         </div>
 
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
             <div class="form-group">
-                <label>选择CSV文件</label>
+                <label>Select CSV File</label>
                 {{ form.csv_file }}
             </div>
 
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button type="submit" class="btn btn-primary">开始导入</button>
-                <a href="{% url 'food_list' %}" class="btn btn-secondary">返回</a>
+                <button type="submit" class="btn btn-primary">Start Import</button>
+                <a href="{% url 'food_list' %}" class="btn btn-secondary">Back</a>
             </div>
         </form>
 
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid #eee;">
 
-        <h3 style="margin-bottom: 1rem;">📊 示例数据预览</h3>
-        <p style="color: #666;">如果还没有数据，可以先导入示例数据：</p>
-        <a href="?sample=1" class="btn btn-success" style="margin-top: 0.5rem;">📥 导入示例数据</a>
+        <h3 style="margin-bottom: 1rem;">📊 Sample Data Preview</h3>
+        <p style="color: #666;">If you don't have data yet, you can import sample data first:</p>
+        <a href="?sample=1" class="btn btn-success" style="margin-top: 0.5rem;">📥 Import Sample Data</a>
     </div>
 </div>
 {% endblock %}
