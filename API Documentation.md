@@ -1,8 +1,4 @@
-好的，这是一个简洁的 Markdown 格式 API 文档：
 
----
-
-```markdown
 # Nutrition Calculator API Documentation
 
 ## Base URL
@@ -36,8 +32,10 @@ Response: Redirect to / (302)
 **POST** `/login/`
 ```
 Request (form-data):
-username: demo
-password: demo123456
+username: newuser
+email: user@example.com
+password1: password123
+password2: password123
 
 Response: Redirect to / (302)
 ```
@@ -168,6 +166,3 @@ Response:
 | 500 | Server error |
 ```
 
----
-
-把这个内容保存为 `API_DOCUMENTATION.md`，然后转换成 PDF 即可。
