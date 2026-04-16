@@ -68,21 +68,12 @@ Follow these instructions to get a copy of the project up and running on your lo
     python manage.py migrate
     ```
 
-5.  **Import sample data (Optional)**
-    The application includes a management command to load a demo food database and a sample user.
-    ```bash
-    python manage.py init_demo
-    ```
-    This creates a demo user with the following credentials:
-    - **Username:** `demo`
-    - **Password:** `demo123456`
-
-6.  **Run the development server**
+5.  **Run the development server**
     ```bash
     python manage.py runserver
     ```
 
-7.  **Open the application**
+6.  **Open the application**
     Navigate to `http://127.0.0.1:8000/` in your web browser.
 
 ## 📖 How to Use
